@@ -1,0 +1,16 @@
+*.pdf
+*.bak
+*.jpg
+*.jpeg
+*.png
+*.tiff
+*.tif
+*.md
+!README.md
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.py[cod]
+*$py.class
+.env
