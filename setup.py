@@ -6,13 +6,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
   name="mistral-ai-ocr",
-  version="1.2",
+  version="1.3",
   packages=find_packages(),
   entry_points={
     'console_scripts': [
       'mistral-ai-ocr = mistral_ai_ocr.__main__:main',
     ],
   },
+  url="https://github.com/jfhack/mistral-ai-ocr",
   install_requires=[
     'mistralai',
     'python-dotenv'
