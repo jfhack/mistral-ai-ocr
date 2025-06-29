@@ -49,6 +49,7 @@ def main():
 
   if args.load_dot_env:
     load_dotenv()
+    load_dotenv(".env")
 
   if args.api_key is None:
     args.api_key = getenv("MISTRAL_API_KEY")
