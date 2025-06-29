@@ -1,6 +1,42 @@
 # Mistral AI OCR
 This is a simple script that uses the Mistral AI OCR API to get the Markdown text from a PDF or image file
 
+# Usage
+
+## Install the Requirements
+
+To install the necessary requirements, run the following command:
+
+```sh
+pip install mistral-ai-ocr
+```
+
+## Typical Usage
+
+```sh
+mistral-ai-ocr paper.pdf
+mistral-ai-ocr paper.pdf --api-key jrWjJE5lFketfB2sA6vvhQK2SoHQ6R39
+mistral-ai-ocr paper.pdf -o revision
+mistral-ai-ocr paper.pdf -e
+mistral-ai-ocr paper.pdf -m FULL
+mistral-ai-ocr page74.jpg -e
+mistral-ai-ocr -j paper.json
+mistral-ai-ocr -j paper.json -m TEXT_NO_PAGES -n
+```
+
+## Arguments
+
+| Argument || Description |
+|-|-|-|
+| | | input PDF or image file |
+| -k API_KEY | --api-key API_KEY | Mistral API key, can be set via the **MISTRAL_API_KEY** environment variable |
+| -o OUTPUT | --output OUTPUT | output directory path. If not set, a directory will be created in the current working directory using the same stem (filename without extension) as the input file |
+| -j JSON_OCR_RESPONSE | --json-ocr-response JSON_OCR_RESPONSE | path from which to load a pre-existing JSON OCR response (any input file will be ignored) |
+| -m MODE | --mode MODE | mode of operation: either the name or numerical value of the mode. _Defaults to FULL_NO_PAGES_ |
+| -s PAGE_SEPARATOR | --page-separator PAGE_SEPARATOR | page separator to use when writing the Markdown file. _Defaults to `\n`_ |
+| -n | --no-json | do not write the JSON OCR response to a file. By default, the response is written |
+| -e | --load-dot-env | load the .env file from the current directory using [`python-dotenv`](https://pypi.org/project/python-dotenv/), to retrieve the Mistral API key |
+
 ## Modes
 
 | Value | Name |
@@ -100,42 +136,6 @@ paper
 ```
 
 By default, the JSON response from the Mistral AI OCR API is saved in the output directory. To disable JSON output, use the `-n` or `--no-json` argument. To experiment with a different **mode** without using additional API calls, reuse an existing JSON response instead of the original input file
-
-# Usage
-
-## Install the Requirements
-
-To install the necessary requirements, run the following command:
-
-```sh
-pip install mistral-ai-ocr
-```
-
-## Typical Usage
-
-```sh
-mistral-ai-ocr paper.pdf
-mistral-ai-ocr paper.pdf --api-key jrWjJE5lFketfB2sA6vvhQK2SoHQ6R39
-mistral-ai-ocr paper.pdf -o revision
-mistral-ai-ocr paper.pdf -e
-mistral-ai-ocr paper.pdf -m FULL
-mistral-ai-ocr page74.jpg -e
-mistral-ai-ocr -j paper.json
-mistral-ai-ocr -j paper.json -m TEXT_NO_PAGES -n
-```
-
-## Arguments
-
-| Argument || Description |
-|-|-|-|
-| | | input PDF or image file |
-| -k API_KEY | --api-key API_KEY | Mistral API key, can be set via the **MISTRAL_API_KEY** environment variable |
-| -o OUTPUT | --output OUTPUT | output directory path. If not set, a directory will be created in the current working directory using the same stem (filename without extension) as the input file |
-| -j JSON_OCR_RESPONSE | --json-ocr-response JSON_OCR_RESPONSE | path from which to load a pre-existing JSON OCR response (any input file will be ignored) |
-| -m MODE | --mode MODE | mode of operation: either the name or numerical value of the mode. _Defaults to FULL_NO_PAGES_ |
-| -s PAGE_SEPARATOR | --page-separator PAGE_SEPARATOR | page separator to use when writing the Markdown file. _Defaults to `\n`_ |
-| -n | --no-json | do not write the JSON OCR response to a file. By default, the response is written |
-| -e | --load-dot-env | load the .env file from the current directory using [`python-dotenv`](https://pypi.org/project/python-dotenv/), to retrieve the Mistral API key |
 
 ### Mistral AI API Key
 
