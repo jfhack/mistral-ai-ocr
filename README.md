@@ -36,6 +36,7 @@ mistral-ai-ocr -j paper.json -m TEXT_NO_PAGES -n
 | -s PAGE_SEPARATOR | --page-separator PAGE_SEPARATOR | page separator to use when writing the Markdown file. _Defaults to `\n`_ |
 | -n | --no-json | do not write the JSON OCR response to a file. By default, the response is written |
 | -e | --load-dot-env | load the .env file from the current directory using [`python-dotenv`](https://pypi.org/project/python-dotenv/), to retrieve the Mistral API key |
+| -E | --load-path-dot-env | load the .env file from the specified path using [`python-dotenv`](https://pypi.org/project/python-dotenv/), to retrieve the Mistral API key. Defaults to ~/.mistral_ai_ocr.env |
 
 ## Modes
 

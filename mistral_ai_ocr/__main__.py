@@ -6,10 +6,7 @@ import codecs
 from os import getenv
 from dotenv import load_dotenv
 
-try:
-  load_dotenv(dotenv_path=Path.home() / ".mistral_ai_ocr.env")
-except:
-  pass
+_default_path_dot_env = Path.home() / ".mistral_ai_ocr.env"
 
 _mode_choices = [mode.name for mode in Modes] + [str(mode.value) for mode in Modes]
 
@@ -45,16 +42,22 @@ def main():
                       help="do not write the JSON OCR response to a file. By default, the response is written")
   parser.add_argument("-e", "--load-dot-env", action="store_true",
                       help="load the .env file from the current directory using python-dotenv, to retrieve the Mistral API key")
+  parser.add_argument("-E", "--load-path-dot-env", type=Path, default=_default_path_dot_env,
+                      help="load the .env file from the specified path using python-dotenv, to retrieve the Mistral API key. Defaults to ~/.mistral_ai_ocr.env")
   args = parser.parse_args()
 
   if args.load_dot_env:
     load_dotenv()
     load_dotenv(".env")
 
+  if args.load_path_dot_env is not None:
+    if args.load_path_dot_env.exists():
+      load_dotenv(args.load_path_dot_env)
+
   if args.api_key is None:
     args.api_key = getenv("MISTRAL_API_KEY")
     if args.api_key is None:
-      parser.error("API key is required. Set it with --api-key, via the MISTRAL_API_KEY environment variable, or load it from a .env file with -e/--load-dot-env")
+      parser.error("API key is required. Set it with --api-key, via the MISTRAL_API_KEY environment variable, or load it from a .env file with -e/--load-dot-env or -E/--load-path-dot-env")
 
   try:
     construct_from_mode(
