@@ -15,6 +15,7 @@ pip install mistral-ai-ocr
 
 ```sh
 mistral-ai-ocr paper.pdf
+mistral-ai-ocr paper.pdf --dpi 200
 mistral-ai-ocr paper.pdf --api-key jrWjJE5lFketfB2sA6vvhQK2SoHQ6R39
 mistral-ai-ocr paper.pdf -o revision
 mistral-ai-ocr paper.pdf -e
@@ -29,6 +30,7 @@ mistral-ai-ocr -j paper.json -m TEXT_NO_PAGES -n
 | Argument || Description |
 |-|-|-|
 | | | input PDF or image file |
+| -d DPI | --dpi DPI | DPI (dots per inch) setting for the PDF to image conversion. Defaults to 600 |
 | -k API_KEY | --api-key API_KEY | Mistral API key, can be set via the **MISTRAL_API_KEY** environment variable |
 | -o OUTPUT | --output OUTPUT | output directory path. If not set, a directory will be created in the current working directory using the same stem (filename without extension) as the input file |
 | -j JSON_OCR_RESPONSE | --json-ocr-response JSON_OCR_RESPONSE | path from which to load a pre-existing JSON OCR response (any input file will be ignored) |

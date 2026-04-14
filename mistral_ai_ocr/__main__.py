@@ -31,6 +31,7 @@ def main():
   )
 
   parser.add_argument("input", type=Path, nargs="?", help="input PDF or image file", default=None)
+  parser.add_argument("-d", "--dpi", type=int, help="DPI (dots per inch) setting for the PDF to image conversion", default=600)
   parser.add_argument("-k", "--api-key", help="Mistral API key, can be set via the MISTRAL_API_KEY environment variable", default=None)
   parser.add_argument("-o", "--output", type=Path, help="output directory path. If not set, a directory will be created in the current working directory using the same stem (filename without extension) as the input file", default=None)
   parser.add_argument("-j", "--json-ocr-response", type=Path, help="path from which to load a pre-existing JSON OCR response (any input file will be ignored)", default=None)
@@ -62,6 +63,7 @@ def main():
   try:
     construct_from_mode(
       document_path=args.input,
+      dpi=args.dpi,
       api_key=args.api_key,
       output_directory=args.output,
       json_ocr_response_path=args.json_ocr_response,

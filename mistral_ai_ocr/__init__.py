@@ -7,6 +7,9 @@ from pathlib import Path
 import mimetypes
 from enum import Enum
 import sys
+from PIL import Image
+import fitz
+from io import BytesIO
 
 class Modes(Enum):
     FULL = 0
@@ -48,10 +51,12 @@ def b64decode_document(base64_data: str, output_path: Path):
         f.write(image_data)
 
 class Page:
-    def __init__(self, index, markdown=None, images:List[OCRImageObject]=None):
+    def __init__(self, index, markdown=None, images:List[OCRImageObject]=None, dimensions=None, document = None):
         self.index = index
         self.markdown = markdown
         self.images = images if images is not None else []
+        self.dimensions = dimensions
+        self.document = document
 
     def write_markdown(self, output_path: Path, append: bool = False, insert = None):
         if self.markdown:
@@ -65,12 +70,39 @@ class Page:
     def write_images(self, output_directory: Path):
         if not self.images:
             return
-        
+
+        use_document_images = self.document is not None and self.document.document_as_images \
+            and self.dimensions is not None
+
         for image in self.images:
             if image and image.image_base64:
                 image_name = image.id
                 image_path = output_directory / image_name
-                b64decode_document(image.image_base64, image_path)
+                if use_document_images:
+                    self.image_from_document(image, image_path)
+                else:
+                    b64decode_document(image.image_base64, image_path)
+
+    def image_from_document(self, image, image_path: Path):
+        if self.dimensions:
+            width = self.dimensions.width
+            height = self.dimensions.height
+            top_left_x = image.top_left_x
+            top_left_y = image.top_left_y
+            bottom_right_x = image.bottom_right_x + 1
+            bottom_right_y = image.bottom_right_y + 1
+            page_image = self.document.document_as_images[self.index]
+            percentage_left = top_left_x / width
+            percentage_top = top_left_y / height
+            percentage_right = bottom_right_x / width
+            percentage_bottom = bottom_right_y / height
+            img_width, img_height = page_image.size
+            crop_left = int(percentage_left * img_width + 0.5)
+            crop_top = int(percentage_top * img_height + 0.5)
+            crop_right = int(percentage_right * img_width + 0.5)
+            crop_bottom = int(percentage_bottom * img_height + 0.5)
+            cropped_image = page_image.crop((crop_left, crop_top, crop_right, crop_bottom))
+            cropped_image.save(image_path)
 
 class MistralOCRDocument:
     def __init__(self, 
@@ -85,6 +117,7 @@ class MistralOCRDocument:
                  page_text_name="<stem>.md",
                  json_ocr_response_path=None,
                  save_json=True,
+                 dpi: int = 600
                 ):
         self.document_path = document_path
         self.api_key = api_key
@@ -96,10 +129,13 @@ class MistralOCRDocument:
         self.page_directory_name = page_directory_name
         self.page_text_name = page_text_name
         self.json_ocr_response_path = json_ocr_response_path
+        self.dpi = dpi
+        self.document_as_images = []
         if output_directory is None:
             self.output_directory = self.get_input_path().parent / self.get_input_path().stem
         else:
             self.output_directory = output_directory
+        self.load_document_as_images()
 
     def get_ocr_response(self, mimetype, base64_document):
         client = Mistral(api_key=self.api_key)
@@ -117,6 +153,30 @@ class MistralOCRDocument:
             },
             include_image_base64=self.include_images
         )
+
+    def process_images(self, document_path: Path):
+        mimetype, _ = mimetypes.guess_type(document_path)
+        if mimetype.startswith("image/"):
+            self.dpi = None
+            images = [Image.open(document_path)]
+        elif mimetype == "application/pdf":
+            pdf_doc = fitz.open(document_path)
+            images = []
+            for page_num in range(len(pdf_doc)):
+                page = pdf_doc.load_page(page_num)
+                pix = page.get_pixmap(dpi=self.dpi)
+                img_data = pix.tobytes("png")
+                image = Image.open(BytesIO(img_data))
+                images.append(image)
+            pdf_doc.close()
+        else:
+            images = []
+        return images
+
+    def load_document_as_images(self):
+        if self.document_path is not None and self.document_path.exists():
+            if self.include_images and self.dpi:
+                self.document_as_images = self.process_images(self.document_path)
 
     def process_document(self):
         if not self.document_path.exists():
@@ -173,7 +233,9 @@ class MistralOCRDocument:
             page = Page(
                 index=r_page.index,
                 markdown=r_page.markdown,
-                images=r_page.images
+                images=r_page.images,
+                dimensions=r_page.dimensions,
+                document=self
             )
             if self.generate_pages:
                 page_dir = self.output_directory / self.page_directory_name.replace("<index>", str(page.index))
@@ -195,7 +257,8 @@ class MistralOCRDocument:
 
 def construct_from_mode(
     document_path: Path,
-    api_key: str,
+    dpi: int = 600,
+    api_key: str = None,
     output_directory: Path = None,
     json_ocr_response_path: Path = None,
     page_separator: str = "\n",
@@ -204,6 +267,7 @@ def construct_from_mode(
 ):
     kwargs = dict(
         document_path=document_path,
+        dpi=dpi,
         api_key=api_key,
         output_directory=output_directory,
         json_ocr_response_path=json_ocr_response_path,
