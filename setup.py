@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
   name="mistral-ai-ocr",
-  version="1.4",
+  version="1.5",
   packages=find_packages(),
   entry_points={
     'console_scripts': [
@@ -16,7 +16,9 @@ setup(
   url="https://github.com/jfhack/mistral-ai-ocr",
   install_requires=[
     'mistralai',
-    'python-dotenv'
+    'python-dotenv',
+    'pymupdf',
+    'pillow'
   ],
   long_description=long_description,
   long_description_content_type="text/markdown"
